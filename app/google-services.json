@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "437071558564",
+    "project_id": "boo-9b814",
+    "storage_bucket": "boo-9b814.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437071558564:android:d612fc8b5ceb0c47bcb331",
+        "android_client_info": {
+          "package_name": "com.example.boo_android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfSKPm3tcJMCElkL6Bpexc3L1MUOaBzfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
