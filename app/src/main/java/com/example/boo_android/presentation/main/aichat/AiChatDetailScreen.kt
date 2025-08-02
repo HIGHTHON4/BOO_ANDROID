@@ -1,24 +1,27 @@
-package com.example.boo_android.presentation.main
+package com.example.boo_android.presentation.main.aichat
 
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +31,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,21 +49,33 @@ import androidx.navigation.NavController
 import com.example.boo_android.AppNavigationItem
 import com.example.boo_android.BooTextField
 import com.example.boo_android.R
+import com.example.boo_android.MyMessageBubble
+import com.example.boo_android.ReplyMessageBubble
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.automirrored.filled.Send
+import com.example.boo_android.data.api.ApiProvider
+import com.example.boo_android.data.request.SendChatRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("Range")
 @Composable
 fun AiChatDetailScreen(
     aiId: String,
+    aiText: String,
     navController: NavController,
 ) {
     var title = "Boo!"
     var description = ""
     var icon = R.drawable.ic_ai_1
-    val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
-
-    when(aiId) {
+    Log.d("TEST5", aiId.toString())
+    when(aiText) {
         "꼬마 유령 Boo!" -> {
             title = "Boo!"
             description = """
@@ -97,7 +113,11 @@ fun AiChatDetailScreen(
             icon = R.drawable.ic_ai_4
         }
     }
-    var text by remember { mutableStateOf("") }
+
+    val messages = remember { mutableStateListOf<Pair<String, Boolean>>() } // Pair<message, isUserMessage>
+    var inputText by remember { mutableStateOf("") }
+    var serverText by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -140,26 +160,76 @@ fun AiChatDetailScreen(
                 )
             }
         }
-        Image(
+        if (inputText.isNotBlank()) {
+            Image(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 60.dp),
+                painter = painterResource(icon),
+                contentDescription = null,
+            )
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = description,
+                textAlign = TextAlign.Center,
+                color = Color(0xFF888D96)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        LazyColumn(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 60.dp),
-            painter = painterResource(icon),
-            contentDescription = null,
-        )
-        Text(
-            modifier = Modifier.padding(top = 8.dp),
-            text = description,
-            textAlign = TextAlign.Center,
-            color = Color(0xFF888D96)
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        BooTextField(
-            modifier = Modifier.padding(bottom = 10.dp),
-            value = text,
-            onValueChange = { text = it },
-            placeholderText = "입력해주세요",
-        )
+                .weight(1f)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            items(messages) { (message, isUserMessage) ->
+                if (isUserMessage) {
+                    MyMessageBubble(message = message)
+                } else {
+                    ReplyMessageBubble(message = message)
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BooTextField(
+                value = inputText,
+                onValueChange = { inputText = it },
+
+                    onSendClick = {
+                    if (inputText.isNotBlank()) {
+                        val currentInputText = inputText // 현재 inputText 값을 로컬 변수에 저장
+                        messages.add(currentInputText to true) // Add user message
+                        inputText = "" // 입력 필드는 즉시 초기화
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                ApiProvider.chatApi.sendChat(
+                                    SendChatRequest(
+                                        text = currentInputText, // 저장된 로컬 변수 사용
+                                        reportId = aiId
+                                    )
+                                )
+                            }.onSuccess {
+                                Log.d("TEST", it.toString())
+                                messages.add(it.content to false)
+                            }.onFailure {
+                                Log.d("TEST", it.toString())
+                            }
+
+                    }
+                }
+                },
+                placeholderText = "메시지를 입력하세요",
+                modifier = Modifier.weight(1f),
+            )
+        }
+
         if (showSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
@@ -171,23 +241,16 @@ fun AiChatDetailScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    // 바텀시트 드래그 핸들
-
                     Spacer(Modifier.height(16.dp))
-
-                    // 제목
                     Text(
                         text = "대화를 종료하시겠습니까?",
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Start,
                         color = Color.White
                     )
-
                     Spacer(Modifier.height(8.dp))
-
-                    // 설명 문구
                     Text(
-                        text = "Boo!와의 대화가 종료되면, 나는 대화를 바탕으로 AI가 괴담 리포트를 작성해줍니다.\n" +
+                        text = "${title}와의 대화가 종료되면, 나는 대화를 바탕으로 AI가 괴담 리포트를 작성해줍니다.\n" +
                                 "괴담 리포트에서는 AI가 남긴 괴담 코멘트와 공포 등급을 확인할 수 있습니다.\n" +
                                 "생성된 리포트는 ‘챗봇 기록’ 탭에서도 확인 가능합니다.",
                         style = MaterialTheme.typography.bodyMedium,
@@ -195,13 +258,10 @@ fun AiChatDetailScreen(
                         textAlign = TextAlign.Start,
                         lineHeight = 20.sp
                     )
-
                     Spacer(Modifier.height(60.dp))
-
-                    // 확인 버튼
                     Button(
                         onClick = {
-                            navController.navigate(AppNavigationItem.AiChatFinish.route)
+                            navController.navigate(AppNavigationItem.AiChatFinish.route + "/$aiId")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -213,121 +273,9 @@ fun AiChatDetailScreen(
                     ) {
                         Text(text = "대화 종료하기")
                     }
-
                     Spacer(Modifier.height(16.dp))
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun ChatList(
-    messages: List<Pair<String, Boolean>>,
-) {
-    val listState = rememberLazyListState()
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.size - 1)
-        }
-    }
-
-    Box(modifier = Modifier) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-        ) {
-            items(messages) { (text, isFromUser) ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    if (isFromUser) {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = Color.White,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                        ) {
-                            Text(
-                                text = text,
-                                color = Color(0xFF332F4D),
-                                fontSize = 17.sp
-                            )
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = Color(0xFFF5F1DF),
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                        ) {
-                            Text(
-                                text = text,
-                                color = Color(0xFF9B934E),
-                                fontSize = 17.sp
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.height(6.dp))
-            }
-        }
-    }
-}
-
-
-
-@Composable
-fun MyMessageBubble(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color(0xFF396BEE), // 파란색
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = message,
-                color = Color.White,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-// 2. 답장(상대방) 메시지 (왼쪽, 회색톤)
-@Composable
-fun ReplyMessageBubble(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color(0xFF232B38), // 진회색
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = message,
-                color = Color(0xFFE3E6EA), // 연한 회색
-                fontSize = 16.sp
-            )
         }
     }
 }

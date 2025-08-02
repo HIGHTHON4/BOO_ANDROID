@@ -7,8 +7,8 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.History
 import androidx.compose.ui.graphics.vector.ImageVector
 
-enum class BottomMenu(val route: String, @StringRes val title: Int, val icon: ImageVector) {
-    AI_CHAT("ai_chat", R.string.ai_chat, Icons.AutoMirrored.Filled.Chat),
-    HISTORY("history", R.string.history, Icons.Filled.History),
-    STRANGE_SEND("strange_send", R.string.strange_send, Icons.AutoMirrored.Filled.Send),
+enum class BottomMenu(val route: String,  val title: String, val icon: Int) {
+    AI_CHAT("ai_chat", "챗봇", R.drawable.ai_chat),
+    HISTORY("history", "챗봇 기록", R.drawable.history),
+    STRANGE_SEND("strange_send", "랜덤 괴담", R.drawable.strange_send),
 }

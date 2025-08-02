@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -30,15 +31,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.boo_android.presentation.main.AiChatDetailScreen
-import com.example.boo_android.presentation.main.AiChatFinishScreen
-import com.example.boo_android.presentation.main.AiChatScreen
+import com.example.boo_android.presentation.main.aichat.AiChatDetailScreen
+import com.example.boo_android.presentation.main.aichat.AiChatFinishScreen
+import com.example.boo_android.presentation.main.aichat.AiChatScreen
 import com.example.boo_android.ui.theme.BOO_ANDROIDTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import com.example.boo_android.data.api.ApiProvider
+import com.example.boo_android.presentation.main.strangesend.StrangeSendScreen
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.android.gms.tasks.OnCompleteListener
+import android.util.Log
+import android.widget.Toast
+import com.example.boo_android.presentation.main.history.HistoryScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        ApiProvider.initialize(this)
+        ApiProvider.saveToken("eyJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxd2VyIiwiZXhwIjoxNzU1MTU1Mjc5LCJpYXQiOjE3NTQxNTUyODB9.MrxjrBSHHqIrmjus3PPrdadGpCev8H3pUAsQO_1mylI")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
@@ -48,18 +60,19 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-//            if (!task.isSuccessful) {
-//                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-//                return@OnCompleteListener
-//            }
-//
-//            // Get new FCM registration token
-//            val token = task.result
-//
-//            // Log and save token to SharedPreferences
-//            Log.d(TAG, "FCM Registration Token: $token")
-//        })
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            // Log and save token to SharedPreferences
+            Log.d(TAG, "FCM Registration Token: $token")
+            Toast.makeText(baseContext, token, Toast.LENGTH_LONG).show()
+        })
     }
 
     companion object {
@@ -85,8 +98,8 @@ fun BottomNavigationBar(navController: NavController) {
 
         items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(imageVector = item.icon, contentDescription = stringResource(id = item.title)) },
-                label = { Text(text = stringResource(id = item.title), fontSize = 9.sp) },
+                icon = { Icon(painter = painterResource(item.icon), contentDescription = item.title) },
+                label = { Text(text = item.title, fontSize = 9.sp) },
                 alwaysShowLabel = true,
                 selected = currentRoute == item.route,
                 onClick = {
@@ -146,25 +159,35 @@ private fun BaseApp() {
                     startDestination = AppNavigationItem.AiChat.route
                 ) {
                     composable(AppNavigationItem.AiChat.route) {
-                        AiChatScreen(navController = mainAppNavController)
+                        AiChatScreen(navController = mainAppNavController) // NavController 제거
                     }
-                    composable(AppNavigationItem.AiChatDetail.route + "/{aiId}",
-                        arguments = listOf(navArgument("aiId") { type = NavType.StringType })) {
+                    composable(AppNavigationItem.AiChatDetail.route + "/{aiId}/{aiText}",
+                        arguments = listOf(
+                            navArgument("aiId") { type = NavType.StringType },
+                            navArgument("aiText") { type = NavType.StringType }
+                        )) {
                         showBottomNav.value = false
                         AiChatDetailScreen(
                             aiId = it.arguments?.getString("aiId") ?: "",
+                            aiText = it.arguments?.getString("aiText") ?: "",
                             navController = mainAppNavController,
                         )
                     }
-                    composable(AppNavigationItem.AiChatFinish.route) {
+                    composable(AppNavigationItem.AiChatFinish.route + "/{aiId}",
+                        arguments = listOf(
+                            navArgument("aiId") { type = NavType.StringType }
+                        )) {
                         showBottomNav.value = true
-                        AiChatFinishScreen(navController = mainAppNavController)
+                        AiChatFinishScreen(
+                            aiId = it.arguments?.getString("aiId") ?: "",
+                            navController = mainAppNavController
+                        )
                     }
-                    composable(BottomMenu.STRANGE_SEND.route) {
-
+                    composable(AppNavigationItem.StrangeSend.route) {
+                        StrangeSendScreen(navController = mainAppNavController)
                     }
-                    composable(BottomMenu.HISTORY.route) {
-
+                    composable(AppNavigationItem.History.route) {
+                        HistoryScreen(navController = navController)
                     }
                 }
             }

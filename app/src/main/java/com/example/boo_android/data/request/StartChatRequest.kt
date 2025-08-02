@@ -1,4 +1,8 @@
 package com.example.boo_android.data.request
 
-class startChatRequest {
-}
+import com.google.gson.annotations.SerializedName
+import java.util.UUID
+
+data class StartChatRequest(
+    @SerializedName("aiId") val aiId: UUID
+)

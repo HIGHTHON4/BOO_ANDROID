@@ -40,7 +40,7 @@ fun BooTextField(
     placeholderText: String,
     modifier: Modifier = Modifier,
     sendEnabled: Boolean = true,
-    onSendClick: () -> Unit = {},
+    onSendClick: () -> Unit,
 ) {
     OutlinedTextField(
         value = value,
@@ -146,4 +146,8 @@ fun AiComponent(
             }
         }
     }
+}
+
+enum class Sort {
+    TIME, LEVEL
 }

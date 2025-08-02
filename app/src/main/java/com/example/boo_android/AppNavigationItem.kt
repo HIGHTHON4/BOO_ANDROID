@@ -6,5 +6,7 @@ sealed class AppNavigationItem(val route: String) {
     object Main : AppNavigationItem("main")
     object AiChat : AppNavigationItem("ai_chat")
     object AiChatDetail : AppNavigationItem("aichatdetail")
-    object AiChatFinish : AppNavigationItem("aichatfinish")
+    object AiChatFinish : AppNavigationItem("ai_chat_finish")
+    object StrangeSend : AppNavigationItem("strange_send")
+    object History : AppNavigationItem("history")
 }
