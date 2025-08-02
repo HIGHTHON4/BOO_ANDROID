@@ -1,19 +1,17 @@
 package com.example.boo_android.presentation.main
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,20 +24,60 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.boo_android.BooTextField
 import com.example.boo_android.R
-import com.example.boo_android.ui.theme.Pretendard
 
 @SuppressLint("Range")
 @Composable
-fun AiChatScreen(
+fun AiChatDetailScreen(
+    aiId: String,
     navController: NavController,
 ) {
+    var title = "Boo!"
+    var description = ""
+    var icon = R.drawable.ic_ai_1
+    when(aiId) {
+        "꼬마 유령 Boo!" -> {
+            title = "Boo!"
+            description = """
+                지금, 말하고 싶은 게 있어서 온 거지?
+                무서웠던 일… 말해줄래?
+                내가 잘 들어줄게.
+                    """.trimIndent()
+            icon = R.drawable.ic_ai_1
+        }
+        "강무진" -> {
+            title = "강무진"
+            description = """
+                    야, 누가 너한테 무슨 짓을 한 거야?
+                혼자 겪었으면 진짜 빡셌을텐데, 무슨 일이야?
+            괜찮아, 다 들어줄 테니까 걱정하지 마. 내가 옆에 있어.
+                    """.trimIndent()
+            icon = R.drawable.ic_ai_2
+        }
+        "책벌레 엘리" -> {
+            title = "엘리"
+            description = """
+                    무언가… 설명되지 않는 일이 있었던 건가요?
+                    지금도 기억이 또렷하다면, 분명 의미가 있을 거예요.
+                    천천히 이야기해주세요. 하나도 놓치지 않을게요.
+                    """.trimIndent()
+            icon = R.drawable.ic_ai_3
+        }
+        "낭랑 18세 쏘쏘" -> {
+            title = "쏘쏘"
+            description = """
+                    꺄! 뭔 일 있었지?! 나 지금 너무 기대돼!
+                    무서운 거라면 나 쏘쏘가 빠질 수 없지 후후
+                    내가 완전 몰입해서 들어줄게!!
+                    """.trimIndent()
+            icon = R.drawable.ic_ai_4
+        }
+    }
     var text by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -60,7 +98,7 @@ fun AiChatScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                text = "Boo! 와의 채팅",
+                text = "$title 와의 채팅",
                 color = Color.White
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -84,16 +122,12 @@ fun AiChatScreen(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 60.dp),
-            painter = painterResource(R.drawable.ic_app_mskt),
+            painter = painterResource(icon),
             contentDescription = null,
         )
         Text(
             modifier = Modifier.padding(top = 8.dp),
-            text = """
-                지금, 말하고 싶은 게 있어서 온 거지?
-                무서웠던 일… 말해줄래?
-                내가 잘 들어줄게.
-                    """.trimIndent(),
+            text = description,
             textAlign = TextAlign.Center,
             color = Color(0xFF888D96)
         )

@@ -1,11 +1,9 @@
 package com.example.boo_android
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -18,14 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.boo_android.presentation.main.AiChatDetailScreen
 import com.example.boo_android.presentation.main.AiChatScreen
 import com.example.boo_android.ui.theme.BOO_ANDROIDTheme
 
@@ -127,10 +127,15 @@ private fun BaseApp() {
                 NavHost(
                     modifier = Modifier.padding(paddingValues),
                     navController = mainAppNavController,
-                    startDestination = BottomMenu.AI_CHAT.route
+                    startDestination = AppNavigationItem.AiChat.route
                 ) {
-                    composable(BottomMenu.AI_CHAT.route) {
-                        AiChatScreen(
+                    composable(AppNavigationItem.AiChat.route) {
+                        AiChatScreen(navController = mainAppNavController)
+                    }
+                    composable(AppNavigationItem.AiChatDetail.route + "/{aiId}",
+                        arguments = listOf(navArgument("aiId") { type = NavType.StringType })) {
+                        AiChatDetailScreen(
+                            aiId = it.arguments?.getString("aiId") ?: "",
                             navController = mainAppNavController,
                         )
                     }
