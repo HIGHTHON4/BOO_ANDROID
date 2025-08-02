@@ -1,69 +1,47 @@
-package com.example.boo_android.presentation.main.aichat
-
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.boo_android.AppNavigationItem
+import com.example.boo_android.R
 import com.example.boo_android.data.api.ApiProvider
-import com.example.boo_android.data.request.StopChatRequest
-import com.example.boo_android.data.response.StopChatResponse
+import com.example.boo_android.data.response.MyReportDetailResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.UUID
 
-@SuppressLint("ImplicitSamInstance")
 @Composable
-fun AiChatFinishScreen(
-    aiId: String,
+fun HistoryDetailScreen(
+    reportId: String,
     navController: NavController,
 ) {
-    var finishData: StopChatResponse by remember { mutableStateOf(StopChatResponse(
-        summary = "",
-        fearLevel = "",
-        title = ""
-    ))}
+    var detailData: MyReportDetailResponse by remember { mutableStateOf<MyReportDetailResponse?>(null) }
+
     LaunchedEffect(Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            runCatching {
-                ApiProvider.chatApi.stopChat(
-                    StopChatRequest(
-                        reportId = aiId
-                    )
+            kotlin.runCatching {
+                ApiProvider.authApi.fetchMyReportDetail(
+                    reportId = reportId
                 )
             }.onSuccess {
-                finishData = it
-                Log.d("TEST", it.toString())
+                detailData = it
             }.onFailure {
                 Log.d("TEST", it.toString())
             }
@@ -72,7 +50,7 @@ fun AiChatFinishScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxHeight()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -82,7 +60,28 @@ fun AiChatFinishScreen(
                 )
             )
             .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
+
+
+        Row {
+            Icon(
+                painter = painterResource(R.drawable.ic_left_back),
+                contentDescription = null
+            )
+
+            Text(
+                text = "${detailData}의 한 마디",
+                color = Color.White,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+        }
+        // Header
+
+
+        // Main Content Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,14 +89,13 @@ fun AiChatFinishScreen(
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF262E3F)
             )
-
         ) {
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
                 // Title
                 Text(
-                    text = finishData.title,
+                    text = detailData.title,
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -106,7 +104,7 @@ fun AiChatFinishScreen(
 
                 // Grade
                 Text(
-                    text = "${finishData.fearLevel}등급",
+                    text = "${detailData.fearLevel}등급",
                     color = Color.Gray,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -114,13 +112,21 @@ fun AiChatFinishScreen(
 
                 // Story Title
                 Text(
-                    text = finishData.summary,
+                    text = "쏘쏘의 한 마디",
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
+                // Story Content
+                Text(
+                    text = detailData.summary,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
 
                 // Emoji
                 Row(
@@ -139,28 +145,9 @@ fun AiChatFinishScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // 채팅 돌아보기 Button
-                    OutlinedButton(
-                        onClick = { /* Handle click */ },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.White
-                        ),
-
-                        shape = RoundedCornerShape(26.dp)
-                    ) {
-                        Text(
-                            text = "채팅 돌아보기",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
                     // 새 채팅 시작하기 Button
                     Button(
-                        onClick = { navController.navigate(AppNavigationItem.AiChat.route) },
+                        onClick = { /* Handle click */ },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
@@ -179,5 +166,6 @@ fun AiChatFinishScreen(
                 }
             }
         }
+        // Bottom Buttons
     }
 }

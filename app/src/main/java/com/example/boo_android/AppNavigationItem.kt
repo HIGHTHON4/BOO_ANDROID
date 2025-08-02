@@ -9,4 +9,5 @@ sealed class AppNavigationItem(val route: String) {
     object AiChatFinish : AppNavigationItem("ai_chat_finish")
     object StrangeSend : AppNavigationItem("strange_send")
     object History : AppNavigationItem("history")
+    object HistoryDetail : AppNavigationItem("history_detail")
 }

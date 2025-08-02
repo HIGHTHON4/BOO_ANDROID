@@ -1,5 +1,6 @@
 package com.example.boo_android
 
+import HistoryDetailScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -187,7 +188,16 @@ private fun BaseApp() {
                         StrangeSendScreen(navController = mainAppNavController)
                     }
                     composable(AppNavigationItem.History.route) {
-                        HistoryScreen(navController = navController)
+                        HistoryScreen(navController = mainAppNavController)
+                    }
+                    composable(AppNavigationItem.HistoryDetail.route + "/{reportId}",
+                        arguments = listOf(
+                            navArgument("reportId") { type = NavType.StringType }
+                        )) {
+                        HistoryDetailScreen(
+                            reportId = it.arguments?.getString("reportId") ?: "",
+                            navController = mainAppNavController
+                        )
                     }
                 }
             }

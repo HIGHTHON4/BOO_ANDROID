@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object ApiProvider {
     private const val BASE_URL = "http://10.10.6.21:8080"
@@ -44,6 +45,7 @@ object ApiProvider {
             .client(
                 OkHttpClient.Builder()
                     .addInterceptor(getLoggingInterceptor())
+                    .readTimeout(100, TimeUnit.SECONDS)
                     .addInterceptor(getTokenInterceptor())
                     .build()
             )
