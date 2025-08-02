@@ -206,7 +206,7 @@ fun AiChatDetailScreen(
                         val currentInputText = inputText // 현재 inputText 값을 로컬 변수에 저장
                         messages.add(currentInputText to true) // Add user message
                         inputText = "" // 입력 필드는 즉시 초기화
-
+                        Log.d("TEST10", aiId)
                         CoroutineScope(Dispatchers.IO).launch {
                             kotlin.runCatching {
                                 ApiProvider.chatApi.sendChat(

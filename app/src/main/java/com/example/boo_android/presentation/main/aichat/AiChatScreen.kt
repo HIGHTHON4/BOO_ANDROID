@@ -103,7 +103,16 @@ fun AiChatScreen(
                 title = ai.name,
                 content = ai.description,
                 onClick = {
-                    navController.navigate(AppNavigationItem.AiChatDetail.route + "/${ai.id}/${ai.name}")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        kotlin.runCatching {
+                            val newAiId = server(aiUUID = ai.id, aiId = "") // ai.id를 aiUUID로 전달
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(AppNavigationItem.AiChatDetail.route + "/${newAiId}/${ai.name}")
+                            }
+                        }.onFailure {
+                            Log.e("AiChatScreen", "Error starting chat for ${ai.name}: ${it.message}")
+                        }
+                    }
                 }
             )
         }
