@@ -37,6 +37,7 @@ import com.example.boo_android.Sort
 import com.example.boo_android.data.api.ApiProvider
 import com.example.boo_android.data.request.SendChatRequest
 import com.example.boo_android.data.response.AiListResponse
+import com.example.boo_android.data.response.MyReportResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,7 +53,7 @@ fun HistoryScreen(
     var aiList by remember { mutableStateOf<List<AiListResponse>>(emptyList()) }
     var aiId = ""
 
-    val reports = List(10) {
+    var reports: List<MyReportResponse> = List(10) {
         ReportItem(
             title = "한밤중 노크는 세 번뿐",
             date = "2025.07.31",
