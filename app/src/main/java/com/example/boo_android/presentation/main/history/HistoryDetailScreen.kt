@@ -32,7 +32,11 @@ fun HistoryDetailScreen(
     reportId: String,
     navController: NavController,
 ) {
-    var detailData: MyReportDetailResponse by remember { mutableStateOf<MyReportDetailResponse?>(null) }
+    var detailData: MyReportDetailResponse? by remember {
+        mutableStateOf<MyReportDetailResponse?>(
+            null
+        )
+    }
 
     LaunchedEffect(Unit) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -48,124 +52,130 @@ fun HistoryDetailScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF192432), // 위쪽 컬러
-                        Color(0xFF060D23)  // 아래쪽 컬러
-                    )
-                )
-            )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-
-
-        Row {
-            Icon(
-                painter = painterResource(R.drawable.ic_left_back),
-                contentDescription = null
-            )
-
-            Text(
-                text = "${detailData}의 한 마디",
-                color = Color.White,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-        }
-        // Header
-
-
-        // Main Content Card
-        Card(
+    // detailData가 null이 아닐 때만 UI 렌더링
+    detailData?.let { data ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF262E3F)
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp)
-            ) {
-                // Title
-                Text(
-                    text = detailData.title,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                // Grade
-                Text(
-                    text = "${detailData.fearLevel}등급",
-                    color = Color.Gray,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // Story Title
-                Text(
-                    text = "쏘쏘의 한 마디",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                // Story Content
-                Text(
-                    text = detailData.summary,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // Emoji
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = "😖",
-                        fontSize = 32.sp
+                .fillMaxHeight()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF192432), // 위쪽 컬러
+                            Color(0xFF060D23)  // 아래쪽 컬러
+                        )
                     )
-                }
+                )
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
 
-                Spacer(modifier = Modifier.weight(1f))
 
+            Row(
+
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_left_back),
+                    contentDescription = null,
+                    tint = Color.White
+                )
+
+                Text(
+                    text = "${data.title}의 한 마디", // data 사용
+                    color = Color.White,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+            }
+            // Header
+
+
+            // Main Content Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF262E3F)
+                )
+            ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(24.dp)
                 ) {
-                    // 새 채팅 시작하기 Button
-                    Button(
-                        onClick = { /* Handle click */ },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF007AFF)
-                        ),
-                        shape = RoundedCornerShape(26.dp)
+                    // Title
+                    Text(
+                        text = data.title, // data 사용
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Grade
+                    Text(
+                        text = "${data.fearLevel}등급", // data 사용
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Story Title
+                    Text(
+                        text = "쏘쏘의 한 마디",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    // Story Content
+                    Text(
+                        text = data.summary, // data 사용
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Emoji
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = "새 채팅 시작하기",
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Medium
+                            text = "😖",
+                            fontSize = 32.sp
                         )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // 새 채팅 시작하기 Button
+                        Button(
+                            onClick = { /* Handle click */ },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF007AFF)
+                            ),
+                            shape = RoundedCornerShape(26.dp)
+                        ) {
+                            Text(
+                                text = "새 채팅 시작하기",
+                                color = Color.White,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
+            // Bottom Buttons
         }
-        // Bottom Buttons
     }
 }

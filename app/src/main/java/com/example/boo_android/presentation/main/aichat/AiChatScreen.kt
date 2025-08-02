@@ -2,17 +2,28 @@ package com.example.boo_android.presentation.main.aichat
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.liveLiteral
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,18 +33,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.boo_android.AiComponent
 import com.example.boo_android.AppNavigationItem
 import com.example.boo_android.R
 import com.example.boo_android.data.api.ApiProvider
-import com.example.boo_android.data.request.SendChatRequest
 import com.example.boo_android.data.request.StartChatRequest
 import com.example.boo_android.data.response.AiListResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -75,21 +85,24 @@ fun AiChatScreen(
         Icon(
             modifier = Modifier.padding(top = 28.dp),
             painter = painterResource(R.drawable.ic_question),
-            contentDescription = null
+            contentDescription = null,
+            tint = Color.White
         )
+
         Text(
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(bottom = 24.dp, top = 16.dp),
             text = """
-                        오늘 무서운 일이 있었군요.
+                오늘 무서운 일이 있었군요.
                 어떤 AI와 얘기하며 털어 놓으시겠어요?
-                    """.trimIndent(),
+            """.trimIndent(),
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = Color.White,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp
         )
 
-        
-
-        // aiList를 사용하여 동적으로 AiComponent 생성
+        // aiList를 사용하여 동적으로 AI 카드 생성
         aiList.forEach { ai ->
             val iconResId = when (ai.name) {
                 "꼬마 유령 Boo!" -> R.drawable.ic_ai_1
@@ -98,10 +111,10 @@ fun AiChatScreen(
                 "낭랑 18세 쏘쏘" -> R.drawable.ic_ai_4
                 else -> R.drawable.ic_ai_1 // 기본 아이콘
             }
-            AiComponent(
-                icon = iconResId,
-                title = ai.name,
-                content = ai.description,
+
+            AICharacterCard(
+                ai = ai,
+                iconResId = iconResId,
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
                         kotlin.runCatching {
@@ -115,10 +128,81 @@ fun AiChatScreen(
                     }
                 }
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
+@Composable
+fun AICharacterCard(
+    ai: AiListResponse,
+    iconResId: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2A3441).copy(alpha = 0.8f)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Character Icon using painterResource
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .background(
+                        Color(0xFF414957),
+                        RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(iconResId),
+                    contentDescription = ai.name,
+                    modifier = Modifier.size(40.dp),
+                    tint = Color.Unspecified
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Character Info
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = ai.name,
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text(
+                    text = ai.description,
+                    color = Color(0xFFB0B8C1),
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            }
+        }
+    }
+}
 
 suspend fun server(
     aiUUID: UUID,

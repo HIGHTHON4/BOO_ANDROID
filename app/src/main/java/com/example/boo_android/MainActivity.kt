@@ -45,6 +45,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import android.util.Log
 import android.widget.Toast
 import com.example.boo_android.presentation.main.history.HistoryScreen
+import com.example.boo_android.presentation.main.strangesend.StrangeSendDetailScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,6 +196,15 @@ private fun BaseApp() {
                             navArgument("reportId") { type = NavType.StringType }
                         )) {
                         HistoryDetailScreen(
+                            reportId = it.arguments?.getString("reportId") ?: "",
+                            navController = mainAppNavController
+                        )
+                    }
+                    composable(AppNavigationItem.StrangeSendDetail.route + "/{reportId}",
+                        arguments = listOf(
+                            navArgument("reportId") { type = NavType.StringType}
+                        )) {
+                        StrangeSendDetailScreen(
                             reportId = it.arguments?.getString("reportId") ?: "",
                             navController = mainAppNavController
                         )
