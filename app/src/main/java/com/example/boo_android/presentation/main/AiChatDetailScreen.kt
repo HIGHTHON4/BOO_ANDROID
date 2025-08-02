@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -24,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -217,6 +220,62 @@ fun AiChatDetailScreen(
         }
     }
 }
+
+@Composable
+fun ChatList(
+    messages: List<Pair<String, Boolean>>,
+) {
+    val listState = rememberLazyListState()
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
+
+    Box(modifier = Modifier) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+        ) {
+            items(messages) { (text, isFromUser) ->
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (isFromUser) {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = Color.White,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        ) {
+                            Text(
+                                text = text,
+                                color = Color(0xFF332F4D),
+                                fontSize = 17.sp
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = Color(0xFFF5F1DF),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        ) {
+                            Text(
+                                text = text,
+                                color = Color(0xFF9B934E),
+                                fontSize = 17.sp
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(6.dp))
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun MyMessageBubble(
