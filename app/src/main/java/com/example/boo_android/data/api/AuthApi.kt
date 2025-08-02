@@ -8,8 +8,8 @@ import retrofit2.http.Query
 interface AuthApi {
 
     @GET("/report/my")
-    fun fetchMyReport(
+    suspend fun fetchMyReport(
         @Query("sort") sort: Sort,
-        @Query("ai") ai: Array<String>,
+        @Query("ai") ai: List<String>,
     ): List<MyReportResponse>
 }

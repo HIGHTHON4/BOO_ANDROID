@@ -17,6 +17,7 @@ object ApiProvider {
 
     lateinit var chatApi: ChatApi
     lateinit var authApi: AuthApi
+    lateinit var horrorApi: HorrorApi
 
     fun initialize(context: Context) {
         sharedPreferences = context.getSharedPreferences("my_shared_prefs", Context.MODE_PRIVATE)
@@ -24,6 +25,7 @@ object ApiProvider {
         val retrofit = getRetrofit()
         chatApi = retrofit.create(ChatApi::class.java)
         authApi = retrofit.create(AuthApi::class.java)
+        horrorApi = retrofit.create(HorrorApi::class.java)
     }
 
 

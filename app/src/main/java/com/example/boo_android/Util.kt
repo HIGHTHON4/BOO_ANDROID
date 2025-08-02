@@ -149,5 +149,5 @@ fun AiComponent(
 }
 
 enum class Sort {
-    TIME, LEVEL
+    TIME, LEVEL, LAST
 }

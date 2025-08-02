@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -22,12 +23,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.boo_android.data.api.ApiProvider
+import com.example.boo_android.data.response.TodayHorrorResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun StrangeSendScreen(
     navController: NavController,
 ) {
+    var storyTitles = TodayHorrorResponse(
+        title = "",
+        reportId = UUID.randomUUID()
+    )
+    LaunchedEffect(Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                ApiProvider.horrorApi.fetchTodayHorror()
+            }.onSuccess {
+                storyTitles = it
+            }.onFailure {
+
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,7 +63,7 @@ fun StrangeSendScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(74.dp))
 
         // 다음 괴담까지 남은 시간
         Text(

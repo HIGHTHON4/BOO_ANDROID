@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.boo_android.Sort
 import com.example.boo_android.data.api.ApiProvider
 import com.example.boo_android.data.request.SendChatRequest
 import com.example.boo_android.data.response.AiListResponse
@@ -44,10 +45,10 @@ import kotlinx.coroutines.launch
 fun HistoryScreen(
     navController: NavController
 ) {
-    val sortOptions = listOf("최신순", "등급순")
+    val sortOptions = listOf("최신순", "등급순", "날짜순")
     val aiOptions = listOf("전체", "Boo!", "강무진", "엘리", "쏘쏘")
-    var selectedSort by remember { mutableStateOf(0) }
-    var selectedAI by remember { mutableStateOf(0) }
+    var selectedSort by remember { mutableStateOf("") }
+    var selectedAI by remember { mutableStateOf("") }
     var aiList by remember { mutableStateOf<List<AiListResponse>>(emptyList()) }
     var aiId = ""
 
@@ -105,9 +106,9 @@ fun HistoryScreen(
         ) {
             sortOptions.forEachIndexed { idx, label ->
                 Button(
-                    onClick = { selectedSort = idx },
+                    onClick = { selectedSort = label },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedSort == idx) Color(0xFF3F6FFF) else Color(0xFF232D3A)
+                        containerColor = if (selectedSort == label) Color(0xFF3F6FFF) else Color(0xFF232D3A)
                     ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.padding(end = 8.dp)
@@ -128,28 +129,42 @@ fun HistoryScreen(
             aiOptions.forEachIndexed { idx, label ->
                 Button(
                     onClick = {
-                        selectedAI = idx
-                        if(selectedAI == idx) {
-                            when(selectedAI) {
-//                                "Boo!" -> {
-//
-//                                }
+                        selectedAI = label
+                        // 선택된 AI에 따라 필터링된 ID 리스트 생성
+                        val filteredAiIds = if (selectedAI == "전체") {
+                            aiList.map { it.id.toString() }
+                        } else {
+                            aiList.filter { it.name == selectedAI }.map { it.id.toString() }
+                        }
+                        Log.d("HistoryScreen", "Filtered AI IDs: $filteredAiIds")
+                        var enum = Sort.TIME
+                        when(selectedSort) {
+                            "최신순" -> {
+                                enum = Sort.TIME
                             }
-                            CoroutineScope(Dispatchers.IO).launch {
-                                kotlin.runCatching {
-//                                    ApiProvider.authApi.fetchMyReport(
-//                                        sort =
-//                                    )
-                                }.onSuccess {
-
-                                }.onFailure {
-
-                                }
+                            "등급순" -> {
+                                enum = Sort.LEVEL
+                            }
+                            "날짜순" -> {
+                                enum = Sort.LAST
+                            }
+                        }
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                ApiProvider.authApi.fetchMyReport(
+                                    sort = enum, // selectedSort는 현재 인덱스로 저장되므로 문자열로 변환 필요
+                                    ai = filteredAiIds
+                                )
+                            }.onSuccess {
+                               reports = it
+                                Log.d("HistoryScreen", "fetchMyReport success: $it")
+                            }.onFailure {
+                                Log.e("HistoryScreen", "fetchMyReport failed: ${it.message}")
                             }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedAI == idx) Color(0xFF3F6FFF) else Color(0xFF232D3A)
+                        containerColor = if (selectedAI == label) Color(0xFF3F6FFF) else Color(0xFF232D3A)
                     ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.padding(end = 8.dp)
