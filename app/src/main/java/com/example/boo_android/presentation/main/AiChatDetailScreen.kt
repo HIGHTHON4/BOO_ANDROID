@@ -4,19 +4,30 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,9 +39,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.boo_android.AppNavigationItem
 import com.example.boo_android.BooTextField
 import com.example.boo_android.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("Range")
 @Composable
 fun AiChatDetailScreen(
@@ -40,6 +53,9 @@ fun AiChatDetailScreen(
     var title = "Boo!"
     var description = ""
     var icon = R.drawable.ic_ai_1
+    val sheetState = rememberModalBottomSheetState()
+    var showSheet by remember { mutableStateOf(false) }
+
     when(aiId) {
         "꼬마 유령 Boo!" -> {
             title = "Boo!"
@@ -104,7 +120,10 @@ fun AiChatDetailScreen(
             Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(6.dp)),
+                    .clip(shape = RoundedCornerShape(6.dp))
+                    .clickable {
+                        showSheet = true
+                    },
             ) {
                 Text(
                     modifier = Modifier.background(color = Color(0xFF060D23))
@@ -138,6 +157,64 @@ fun AiChatDetailScreen(
             onValueChange = { text = it },
             placeholderText = "입력해주세요",
         )
+        if (showSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showSheet = false },
+                containerColor = Color(0xFF192432)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    // 바텀시트 드래그 핸들
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // 제목
+                    Text(
+                        text = "대화를 종료하시겠습니까?",
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Start,
+                        color = Color.White
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // 설명 문구
+                    Text(
+                        text = "Boo!와의 대화가 종료되면, 나는 대화를 바탕으로 AI가 괴담 리포트를 작성해줍니다.\n" +
+                                "괴담 리포트에서는 AI가 남긴 괴담 코멘트와 공포 등급을 확인할 수 있습니다.\n" +
+                                "생성된 리포트는 ‘챗봇 기록’ 탭에서도 확인 가능합니다.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(Modifier.height(60.dp))
+
+                    // 확인 버튼
+                    Button(
+                        onClick = {
+                            navController.navigate(AppNavigationItem.AiChatFinish.route)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF0070FF)
+                        )
+                    ) {
+                        Text(text = "대화 종료하기")
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                }
+            }
+        }
     }
 }
 

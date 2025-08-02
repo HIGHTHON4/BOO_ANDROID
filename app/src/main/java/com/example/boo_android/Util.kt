@@ -1,10 +1,15 @@
 package com.example.boo_android
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -19,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -76,7 +82,7 @@ fun BooTextField(
 @Composable
 fun AiComponent(
     modifier: Modifier = Modifier,
-    icon: Painter,
+    icon: Int,
     title: String,
     content: String,
     onClick: () -> Unit,
@@ -84,10 +90,10 @@ fun AiComponent(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(6.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF4A4A4A)
+            containerColor = Color(0xFF2C3544)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp
@@ -98,14 +104,25 @@ fun AiComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.Top
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // 화난 이모지 아이콘
-            Icon(
-                painter = icon,
-                contentDescription = null
-            )
+            Box(
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .clip(shape = RoundedCornerShape(16.dp))
+                    .size(80.dp)
+                    .background(color = Color(0xFF414957))
 
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(60.dp),
+                    painter = painterResource(icon),
+                    contentDescription = null
+                )
+            }
             // 텍스트 내용
             Column(
                 modifier = Modifier.weight(1f)
@@ -114,17 +131,17 @@ fun AiComponent(
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 2.dp)
                 )
 
                 Text(
+                    modifier = Modifier.padding(top = 12.dp),
                     text = content,
                     color = Color.White,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     lineHeight = 20.sp,
-                    modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
         }

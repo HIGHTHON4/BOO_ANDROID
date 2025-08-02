@@ -1,9 +1,12 @@
 package com.example.boo_android
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -14,6 +17,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -26,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.boo_android.presentation.main.AiChatDetailScreen
+import com.example.boo_android.presentation.main.AiChatFinishScreen
 import com.example.boo_android.presentation.main.AiChatScreen
 import com.example.boo_android.ui.theme.BOO_ANDROIDTheme
 
@@ -33,6 +39,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         setContent {
             BOO_ANDROIDTheme {
                 BaseApp()
@@ -65,9 +74,10 @@ fun BottomNavigationBar(navController: NavController) {
         BottomMenu.STRANGE_SEND,
         BottomMenu.HISTORY,
     )
+    val noRippleSource = remember { MutableInteractionSource() }
 
     BottomAppBar (
-        containerColor = Color.White,
+        containerColor = Color(0xFF060D23),
         contentColor = Color(0xFF3F414E),
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -96,7 +106,7 @@ fun BottomNavigationBar(navController: NavController) {
                     selectedTextColor = Color(0xFF3F414E),
                     unselectedTextColor = Color(0xFF3F414E),
                     indicatorColor = Color.Transparent
-                )
+                ),
             )
         }
     }
@@ -105,6 +115,8 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 private fun BaseApp() {
     val navController = rememberNavController()
+    var showBottomNav = remember { mutableStateOf(true) }
+
     NavHost(
         navController = navController,
         startDestination = AppNavigationItem.Main.route
@@ -120,8 +132,12 @@ private fun BaseApp() {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 bottomBar = {
-                    BottomAppBar { }
-                    BottomNavigationBar(navController = mainAppNavController)
+                    if (showBottomNav.value) {
+                        BottomAppBar { }
+                        BottomNavigationBar(
+                            navController = mainAppNavController
+                        )
+                    }
                 },
             ) { paddingValues ->
                 NavHost(
@@ -134,10 +150,15 @@ private fun BaseApp() {
                     }
                     composable(AppNavigationItem.AiChatDetail.route + "/{aiId}",
                         arguments = listOf(navArgument("aiId") { type = NavType.StringType })) {
+                        showBottomNav.value = false
                         AiChatDetailScreen(
                             aiId = it.arguments?.getString("aiId") ?: "",
                             navController = mainAppNavController,
                         )
+                    }
+                    composable(AppNavigationItem.AiChatFinish.route) {
+                        showBottomNav.value = true
+                        AiChatFinishScreen(navController = mainAppNavController)
                     }
                     composable(BottomMenu.STRANGE_SEND.route) {
 
