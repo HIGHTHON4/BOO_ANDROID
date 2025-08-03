@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
 
             // Get new FCM registration token
             val token = task.result
+            Log.d("TEST", token)
 
             // Log and save token to SharedPreferences
             Log.d(TAG, "FCM Registration Token: $token")

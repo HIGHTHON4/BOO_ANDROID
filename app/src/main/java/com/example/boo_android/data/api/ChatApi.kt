@@ -1,5 +1,6 @@
 package com.example.boo_android.data.api
 
+import com.example.boo_android.data.request.SeeChatHistoryRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -8,6 +9,7 @@ import com.example.boo_android.data.request.SendChatRequest
 import com.example.boo_android.data.request.StartChatRequest
 import com.example.boo_android.data.request.StopChatRequest
 import com.example.boo_android.data.response.AiListResponse
+import com.example.boo_android.data.response.SeeChatHistoryResponse
 import com.example.boo_android.data.response.SendChatResponse
 import com.example.boo_android.data.response.StopChatResponse
 import java.util.UUID
@@ -27,6 +29,11 @@ interface ChatApi {
     suspend fun stopChat(
         @Body request: StopChatRequest
     ): StopChatResponse
+
+    @POST("/chat/query")
+    suspend fun seeChatHistory(
+        @Body request: SeeChatHistoryRequest
+    ): SeeChatHistoryResponse
 
     @GET("/ai")
     suspend fun fetchAiList(): List<AiListResponse>

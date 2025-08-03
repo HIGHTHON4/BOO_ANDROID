@@ -46,6 +46,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalTime
+import java.util.Calendar
 import java.util.Date
 import kotlin.time.Clock.System.now
 
@@ -183,21 +184,45 @@ fun NumberedListItem(
 
 @Composable
 fun LiveTimeDisplay(
+    targetHour: Int = 4,
+    targetMinute: Int = 44,
+    targetSecond: Int = 44,
     modifier: Modifier = Modifier
 ) {
-    var currentTime by remember { mutableStateOf("") }
+    var remainingTime by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         while (true) {
-            val formatter = String.format("%02d:%02d:%02d",
-                now.hour
-            )
+            val calendar = Calendar.getInstance()
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = calendar.get(Calendar.MINUTE)
+            val currentSecond = calendar.get(Calendar.SECOND)
+
+            // 현재 시간을 초 단위로 변환
+            val currentTotalSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond
+
+            // 목표 시간을 초 단위로 변환
+            var targetTotalSeconds = targetHour * 3600 + targetMinute * 60 + targetSecond
+
+            // 만약 목표 시간이 현재 시간보다 이르면 내일의 목표 시간으로 계산
+            if (targetTotalSeconds <= currentTotalSeconds) {
+                targetTotalSeconds += 24 * 3600 // 다음날 추가
+            }
+
+            // 남은 시간 계산
+            val remainingSeconds = targetTotalSeconds - currentTotalSeconds
+
+            val hours = remainingSeconds / 3600
+            val minutes = (remainingSeconds % 3600) / 60
+            val seconds = remainingSeconds % 60
+
+            remainingTime = String.format("%02d:%02d:%02d", hours, minutes, seconds)
             delay(1000) // 1초마다 업데이트
         }
     }
 
     TimeDisplay(
-        time = currentTime,
+        time = remainingTime,
         modifier = modifier
     )
 }
@@ -209,15 +234,15 @@ fun TimeDisplay(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF2A3441))
+            .background(Color.Transparent)
             .padding(vertical = 24.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = time,
             color = Color.White,
-            fontSize = 48.sp,
-            fontWeight = FontWeight.Light,
+            fontSize = 60.sp,
+            fontWeight = FontWeight.Thin,
             letterSpacing = 2.sp,
             fontFamily = FontFamily.Monospace
         )

@@ -157,6 +157,12 @@ fun HistoryScreen(
                 Button(
                     onClick = {
                         selectedAI = label
+                        // aiId 업데이트
+                        aiId = if (selectedAI == "전체") {
+                            ""
+                        } else {
+                            aiList.firstOrNull { it.name == selectedAI }?.id?.toString() ?: ""
+                        }
                         // 선택된 AI에 따라 필터링된 ID 리스트 생성
                         val filteredAiIds = if (selectedAI == "전체") {
                             aiList.map { it.id.toString() }
