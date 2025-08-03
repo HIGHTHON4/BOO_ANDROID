@@ -71,20 +71,23 @@ fun HistoryDetailScreen(
 
 
             Row(
-
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_left_back),
-                    contentDescription = null,
-                    tint = Color.White
-                )
+                IconButton(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_left_back),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
 
                 Text(
-                    text = "${data.title}의 한 마디", // data 사용
+                    text = "${data.aiName}의 한 마디", // data 사용
                     color = Color.White,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 32.dp)
                 )
             }
             // Header

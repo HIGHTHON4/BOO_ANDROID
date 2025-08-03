@@ -7,4 +7,5 @@ data class MyReportDetailResponse(
     @SerializedName("summary") val summary: String,
     @SerializedName("fearLevel") val fearLevel: String,
     @SerializedName("title") val title: String,
+    @SerializedName("aiName") val aiName: String,
 )

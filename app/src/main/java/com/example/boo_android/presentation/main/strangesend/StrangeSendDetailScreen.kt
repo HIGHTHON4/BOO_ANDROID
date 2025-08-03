@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,17 +89,21 @@ fun StrangeSendDetailScreen(
                 )
             )
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 16.dp),
     ) {
         Row(
             modifier = Modifier.padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_left_back),
-                contentDescription = null,
-                tint = Color.White
-            )
+            IconButton(onClick = {
+                navController.popBackStack()
+            }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_left_back),
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
 
             Text(
                 text = ssdetail.title,

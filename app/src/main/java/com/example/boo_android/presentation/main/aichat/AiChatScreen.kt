@@ -86,7 +86,7 @@ fun AiChatScreen(
             modifier = Modifier.padding(top = 28.dp),
             painter = painterResource(R.drawable.ic_question),
             contentDescription = null,
-            tint = Color.White
+            tint = Color.Unspecified
         )
 
         Text(

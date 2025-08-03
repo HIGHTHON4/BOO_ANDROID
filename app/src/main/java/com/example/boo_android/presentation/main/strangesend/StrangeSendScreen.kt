@@ -102,13 +102,12 @@ fun StrangeSendScreen(
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
-        Spacer(Modifier.height(18.dp))
 
         Log.d("TEST", storyTitles.toString())
         storyTitles.forEachIndexed { index, title ->
             NumberedListItem(
                 modifier = Modifier.padding(vertical = 12.dp, horizontal = 12.dp),
-                number = index,
+                number = index + 1,
                 text = title.title,
                 onClick = {
                     navController.navigate(AppNavigationItem.StrangeSendDetail.route + "/${title.reportId}")
